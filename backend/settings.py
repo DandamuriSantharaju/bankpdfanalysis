@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+from corsheaders.defaults import default_headers
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -70,7 +70,7 @@ TEMPLATES = [
     },
 ]
 CORS_ALLOWED_ORIGINS = [
-    "https://banpdfanalysis.netlify.app",  # ✅ your frontend URL
+    "https://banpdfanalysis.netlify.app",
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
