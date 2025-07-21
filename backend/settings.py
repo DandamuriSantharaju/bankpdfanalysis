@@ -70,6 +70,12 @@ TEMPLATES = [
     },
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
+CORS_ALLOWED_ORIGINS = [
+    "https://bankpdfanalysis.netlify.app",  # ✅ Your deployed frontend domain
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
