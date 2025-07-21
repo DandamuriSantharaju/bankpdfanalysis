@@ -69,10 +69,14 @@ TEMPLATES = [
         },
     },
 ]
-CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
 CORS_ALLOWED_ORIGINS = [
-    "https://bankpdfanalysis.netlify.app",  # ✅ Your deployed frontend domain
+    "https://bankpdfanalysis.netlify.app",  # ✅ your frontend URL
 ]
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'content-disposition',
+]
+
 
 CORS_ALLOW_CREDENTIALS = True
 
