@@ -70,7 +70,7 @@ TEMPLATES = [
     },
 ]
 CORS_ALLOWED_ORIGINS = [
-    "https://bankpdfanalysis.netlify.app",  # ✅ your frontend URL
+    "https://banpdfanalysis.netlify.app",  # ✅ your frontend URL
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
