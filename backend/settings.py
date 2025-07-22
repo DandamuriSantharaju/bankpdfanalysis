@@ -77,8 +77,8 @@ CORS_ALLOW_HEADERS = list(default_headers) + ["content-disposition"]
 CORS_EXPOSE_HEADERS = [
     "content-disposition",
 ]
-DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB or adjust as needed
-FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB or adjust as needed
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
 
 # CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
 
