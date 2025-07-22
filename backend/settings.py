@@ -77,6 +77,8 @@ CORS_ALLOW_HEADERS = list(default_headers) + ["content-disposition"]
 CORS_EXPOSE_HEADERS = [
     "content-disposition",
 ]
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB or adjust as needed
+FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400
 
 # CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
 
@@ -137,3 +139,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import sys
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
