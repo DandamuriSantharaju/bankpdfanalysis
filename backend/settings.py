@@ -70,9 +70,7 @@ TEMPLATES = [
     },
 ]
 CORS_ALLOWED_ORIGINS = ["https://banpdfanalysis.netlify.app"]
-CORS_ALLOW_METHODS = [
-    "GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"
-]
+
 CORS_ALLOW_HEADERS = list(default_headers) + ["content-disposition"]
 
 CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
