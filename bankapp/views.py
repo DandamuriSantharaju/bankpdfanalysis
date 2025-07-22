@@ -323,6 +323,7 @@ import pytesseract
 import tempfile
 import logging
 from io import BytesIO
+from tempfile import NamedTemporaryFile
 
 # ✅ Utility to convert string to float
 def to_float(x):
@@ -570,8 +571,14 @@ class UploadPDFView(APIView):
                 except Exception as e:
                     logger.warning(f"⚠️ Falling back to OCR: {str(e)}")
                     pdf = None
-                    df = extract_using_ocr(file.temporary_file_path() if hasattr(file, 'temporary_file_path') else file)
+                    if hasattr(file, 'temporary_file_path'):
+                        pdf_path = file.temporary_file_path()
+                    else:
+                        with NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                            tmp.write(file.read())
+                            pdf_path = tmp.name
 
+                    df = extract_using_ocr(pdf_path)
                 # Choose parser
                 if pdf:
                     format_type = detect_format(pdf)
