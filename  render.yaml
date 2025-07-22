@@ -1,13 +1,24 @@
+#services:
+#  - type: web
+#    pullRequestPreview: disabled
+#    name: bankpdf-backend
+#    env: python
+#    buildCommand: |
+#      apt-get update
+#      apt-get install -y poppler-utils tesseract-ocr
+#      pip install -r requirements.txt
+#    startCommand: gunicorn backend.wsgi:application
+#    envVars:
+#      - key: DJANGO_SETTINGS_MODULE
+#        value: backend.settings
+
 services:
   - type: web
-    pullRequestPreview: disabled
-    name: bankpdf-backend
+    name: bankpdfanalysis
     env: python
-    buildCommand: |
-      apt-get update
-      apt-get install -y poppler-utils tesseract-ocr
-      pip install -r requirements.txt
-    startCommand: gunicorn backend.wsgi:application
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn backend.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: backend.settings
+    staticPublishPath: staticfiles
