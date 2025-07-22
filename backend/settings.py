@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-srg*b0=j2wcc*en0f0)i=t0))t=irvxqnao2(5hws@7ds6cgp=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["bankpdfanalysis.onrender.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -73,7 +74,7 @@ CORS_ALLOWED_ORIGINS = ["https://banpdfanalysis.netlify.app"]
 
 CORS_ALLOW_HEADERS = list(default_headers) + ["content-disposition"]
 
-CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
+# CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
