@@ -71,7 +71,7 @@ TEMPLATES = [
         },
     },
 ]
-CORS_ALLOWED_ORIGINS = ["https://banpdfanalysis.netlify.app"]
+CORS_ALLOWED_ORIGINS = ["https://banpdfanalysis.netlify.app","http://localhost:4200/"]
 
 CORS_ALLOW_HEADERS = list(default_headers) + ["content-disposition"]
 CORS_EXPOSE_HEADERS = [
