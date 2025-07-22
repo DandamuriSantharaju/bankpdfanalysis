@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-srg*b0=j2wcc*en0f0)i=t0))t=irvxqnao2(5hws@7ds6cgp=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -69,19 +69,14 @@ TEMPLATES = [
         },
     },
 ]
-# CORS_ALLOWED_ORIGINS = [
-#     "https://banpdfanalysis.netlify.app",
-# ]
-
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    'content-disposition',
+CORS_ALLOWED_ORIGINS = ["https://banpdfanalysis.netlify.app"]
+CORS_ALLOW_METHODS = [
+    "GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"
 ]
+CORS_ALLOW_HEADERS = list(default_headers) + ["content-disposition"]
 
+CORS_ALLOW_ALL_ORIGINS = True  # (Use `CORS_ALLOWED_ORIGINS` for production)
 
-CORS_ALLOW_CREDENTIALS = True
-
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 WSGI_APPLICATION = 'backend.wsgi.application'

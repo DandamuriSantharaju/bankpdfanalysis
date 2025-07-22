@@ -2,10 +2,12 @@ import re
 import pdfplumber
 import pandas as pd
 import numpy as np
+import traceback
 from io import BytesIO
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
+from rest_framework import status
 from django.http import FileResponse
 from pdf2image import convert_from_path
 import pytesseract
@@ -232,69 +234,74 @@ class UploadPDFView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request):
-        file = request.FILES.get("pdf")
-        keyword = request.data.get("keyword", "").strip().lower()
-        password = request.data.get("password", "").strip()
-
-        if not file:
-            return Response({"error": "No PDF uploaded."}, status=400)
-
         try:
+            file = request.FILES.get("pdf")
+            keyword = request.data.get("keyword", "").strip().lower()
+            password = request.data.get("password", "").strip()
+
+            if not file:
+                return Response({"error": "No PDF uploaded."}, status=400)
+
             try:
-                pdf = pdfplumber.open(file, password=password or None)
-                if not pdf.pages or not pdf.pages[0].extract_text():
-                    raise ValueError("PDF text is empty or corrupted")
-            except Exception:
-                pdf = None
-                df = extract_using_ocr(file.temporary_file_path() if hasattr(file, 'temporary_file_path') else file)
-            else:
-                format_type = detect_format(pdf)
-                if format_type == "structured":
-                    df = extract_structured(pdf)
-                elif format_type == "hdfc":
-                    df = extract_hdfc(pdf)
-                elif format_type == "kotak":
-                    df = extract_kotak(pdf)
-                elif format_type == "bob":
-                    df = extract_bob(pdf)
+                try:
+                    pdf = pdfplumber.open(file, password=password or None)
+                    if not pdf.pages or not pdf.pages[0].extract_text():
+                        raise ValueError("PDF text is empty or corrupted")
+                except Exception:
+                    pdf = None
+                    df = extract_using_ocr(file.temporary_file_path() if hasattr(file, 'temporary_file_path') else file)
                 else:
-                    return Response({"error": "Format detection failed."}, status=400)
+                    format_type = detect_format(pdf)
+                    if format_type == "structured":
+                        df = extract_structured(pdf)
+                    elif format_type == "hdfc":
+                        df = extract_hdfc(pdf)
+                    elif format_type == "kotak":
+                        df = extract_kotak(pdf)
+                    elif format_type == "bob":
+                        df = extract_bob(pdf)
+                    else:
+                        return Response({"error": "Format detection failed."}, status=400)
 
-            if keyword:
-                df = df[df.apply(lambda row: any(keyword in str(cell).lower() for cell in row), axis=1)]
+                if keyword:
+                    df = df[df.apply(lambda row: any(keyword in str(cell).lower() for cell in row), axis=1)]
 
-            if df.empty:
-                return Response({"error": "No data extracted."}, status=400)
+                if df.empty:
+                    return Response({"error": "No data extracted."}, status=400)
 
-            # Normalize column names
-            df.columns = [str(c).strip().capitalize() for c in df.columns]
-            withdrawals_col = next((c for c in df.columns if "withdrawal" in c.lower()), None)
-            deposits_col = next((c for c in df.columns if "deposit" in c.lower()), None)
-            balance_col = next((c for c in df.columns if "balance" in c.lower()), None)
-            date_col = next((c for c in df.columns if "date" in c.lower()), None)
-            desc_col = next((c for c in df.columns if "desc" in c.lower()), None)
+                # Normalize column names
+                df.columns = [str(c).strip().capitalize() for c in df.columns]
+                withdrawals_col = next((c for c in df.columns if "withdrawal" in c.lower()), None)
+                deposits_col = next((c for c in df.columns if "deposit" in c.lower()), None)
+                balance_col = next((c for c in df.columns if "balance" in c.lower()), None)
+                date_col = next((c for c in df.columns if "date" in c.lower()), None)
+                desc_col = next((c for c in df.columns if "desc" in c.lower()), None)
 
-            for col in [withdrawals_col, deposits_col, balance_col]:
-                if col:
-                    df[col] = df[col].apply(to_float)
+                for col in [withdrawals_col, deposits_col, balance_col]:
+                    if col:
+                        df[col] = df[col].apply(to_float)
 
-            if date_col:
-                df = df[df[date_col].astype(str).str.strip() != "▶ SUMMARY"]
+                if date_col:
+                    df = df[df[date_col].astype(str).str.strip() != "▶ SUMMARY"]
 
-            summary = {
-                date_col or "Date": "▶ SUMMARY",
-                desc_col or "Description": "",
-                withdrawals_col or "Withdrawals": round(df[withdrawals_col].sum(skipna=True), 2) if withdrawals_col else "",
-                deposits_col or "Deposits": round(df[deposits_col].sum(skipna=True), 2) if deposits_col else "",
-                balance_col or "Balance": round(df[balance_col].mean(skipna=True), 2) if balance_col else ""
-            }
+                summary = {
+                    date_col or "Date": "▶ SUMMARY",
+                    desc_col or "Description": "",
+                    withdrawals_col or "Withdrawals": round(df[withdrawals_col].sum(skipna=True), 2) if withdrawals_col else "",
+                    deposits_col or "Deposits": round(df[deposits_col].sum(skipna=True), 2) if deposits_col else "",
+                    balance_col or "Balance": round(df[balance_col].mean(skipna=True), 2) if balance_col else ""
+                }
 
-            df = pd.concat([df, pd.DataFrame([summary])], ignore_index=True)
-            output = BytesIO()
-            with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-                df.to_excel(writer, index=False)
-            output.seek(0)
-            return FileResponse(output, as_attachment=True, filename="converted.xlsx")
+                df = pd.concat([df, pd.DataFrame([summary])], ignore_index=True)
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+                    df.to_excel(writer, index=False)
+                output.seek(0)
+                return FileResponse(output, as_attachment=True, filename="converted.xlsx")
 
+            except Exception as e:
+                return Response({"error": str(e)}, status=500)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            print("❗️ SERVER ERROR:", str(e))
+            traceback.print_exc()  # This will print the full error in Render logs
+            return Response({"error": "Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
