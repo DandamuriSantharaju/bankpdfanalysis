@@ -15,6 +15,7 @@ django-seed==0.3.1
 djangorestframework==3.16.0
 et_xmlfile==2.0.0
 Faker==37.1.0
+gunicorn==23.0.0
 httpie==3.2.4
 idna==3.10
 Markdown==3.8
